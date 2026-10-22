@@ -1,0 +1,54 @@
+[
+  [
+    "enable secret and enable password are both configured. Which one works, and why prefer it?",
+    "enable secret. It wins when both are set, and it's stored as a hash. enable password is weak."
+  ],
+  [
+    "What does service password-encryption actually do?",
+    "Scrambles plaintext passwords in the config with a weak, easily reversed encoding (type 7). It stops shoulder-surfing, not attackers."
+  ],
+  [
+    "login vs login local under line vty: what's the difference?",
+    "login: checks the single password set on that line.\nlogin local: checks the usernames and passwords configured on the device (username ... secret ...)."
+  ],
+  [
+    "You enter login under line vty 0 4 but never set a password. What happens?",
+    "Nobody can log in remotely. IOS warns that login is disabled until a password is set."
+  ],
+  [
+    "What does line vty 0 4 configure?",
+    "The five virtual terminal lines used for remote sessions (Telnet/SSH), all at once."
+  ],
+  [
+    "Console, vty, and aux lines: what is each for?",
+    "Console: the physical console port.\nvty: remote sessions over the network.\naux: the auxiliary port, historically for a modem."
+  ],
+  [
+    "Why shouldn't you manage devices over Telnet?",
+    "It sends everything, passwords included, in cleartext."
+  ],
+  [
+    "What does a router need before SSH works?",
+    "A hostname other than the default, an ip domain-name, RSA keys (crypto key generate rsa), a local username, and on the vty lines: login local and transport input ssh."
+  ],
+  [
+    "transport input ssh under the vty lines: what's the effect?",
+    "Only SSH is accepted on those lines. Telnet is refused."
+  ],
+  [
+    "You make config changes, then reload without saving. What happens?",
+    "The changes are lost. They lived in the running config (RAM); the router boots from the startup config."
+  ],
+  [
+    "Which commands save the running config?",
+    "copy running-config startup-config, or write memory (wr)."
+  ],
+  [
+    "First boot asks whether to enter the initial configuration dialog. What do you answer?",
+    "No. It drops you at the CLI to configure the device yourself."
+  ],
+  [
+    "How does IOS apply config changes, compared with Junos?",
+    "Immediately, line by line, as you press Enter. Junos stages changes and applies them on commit."
+  ]
+]

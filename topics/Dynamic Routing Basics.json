@@ -1,0 +1,90 @@
+[
+  [
+    "Why use dynamic routing instead of static routes?",
+    "Static routes don't scale and don't react to failures. With dynamic routing, routers share what they know, fill in each other's tables, and reroute when something changes."
+  ],
+  [
+    "What two things does a network statement under router eigrp do?",
+    "1. Turns EIGRP on for every interface whose IP falls in that range: it sends hellos there and listens for neighbors.\n2. Includes those interfaces' networks in what it advertises."
+  ],
+  [
+    "What does EIGRP need for two routers to become neighbors?",
+    "EIGRP enabled on both interfaces (matching network statements), the same AS number, and both interfaces in the same subnet."
+  ],
+  [
+    "R1 and R2 share 192.168.2.0/24. R1 has network 192.168.1.0 and network 192.168.2.0. R2 has only network 192.168.3.0. Both use router eigrp 1. Do they become neighbors?",
+    "No. R2 isn't running EIGRP on the shared link, so it neither sends hellos there nor listens to R1's."
+  ],
+  [
+    "R1 runs router eigrp 1 and R2 runs router eigrp 10, with network statements covering the shared link. Do they become neighbors?",
+    "No. The AS numbers have to match."
+  ],
+  [
+    "R1 (10.0.0.1/30) and R2 (10.0.0.6/30) are cabled together and both run router eigrp 50 with network 10.0.0.0. Neighbors?",
+    "No. They're in different /30s (0-3 and 4-7), so they aren't on the same subnet."
+  ],
+  [
+    "You enter network 172.16.5.0 under router eigrp 1 with no wildcard. Which interfaces does it match?",
+    "Every interface in 172.16.0.0/16. With no wildcard, EIGRP uses the classful size (172.16 is class B, so /16), and the config shows network 172.16.0.0."
+  ],
+  [
+    "network 10.0.0.0 with no wildcard: what's the risk?",
+    "It matches every interface in 10.0.0.0/8 (classful class A). Any interface you didn't intend that's in 10.x gets EIGRP too."
+  ],
+  [
+    "network 192.168.1.0 0.0.0.127. Does it enable EIGRP on an interface at 192.168.1.10/24? What subnet gets advertised?",
+    "Yes, 192.168.1.10 falls inside 192.168.1.0-127. It advertises 192.168.1.0/24, the interface's own subnet. The statement only picks interfaces."
+  ],
+  [
+    "network 192.168.1.0 0.0.0.127. Does it enable EIGRP on an interface at 192.168.1.200/25?",
+    "No. 192.168.1.200 is outside 192.168.1.0-127."
+  ],
+  [
+    "Gi0/0 is 192.168.1.1/25 and Gi0/1 is 192.168.1.129/25. You enter network 192.168.1.0 with no wildcard. What's enabled and advertised?",
+    "Both interfaces (both fall in classful 192.168.1.0/24). It advertises two routes: 192.168.1.0/25 and 192.168.1.128/25."
+  ],
+  [
+    "What does passive-interface do under a routing protocol?",
+    "Stops hellos on that interface, so no neighbors form there, but its network is still advertised. Used on LAN-facing and ISP-facing interfaces."
+  ],
+  [
+    "Why not enable EIGRP on the ISP-facing interface?",
+    "You'd be offering your internal routes to the outside and trying to form neighbors where none should exist. Only enable it where your own routers should peer."
+  ],
+  [
+    "Are routing protocol hellos replies to each other?",
+    "No. Each router sends hellos on a timer whether or not anyone's listening. A neighbor forms when each hears the other. (OSPF hellos list the neighbors heard, which confirms the conversation goes both ways.)"
+  ],
+  [
+    "After router eigrp 1 and the first network statement, show ip route shows nothing new. Why?",
+    "No neighbor yet. Routes only arrive once another router on a shared link runs EIGRP too and the two form a neighbor relationship."
+  ],
+  [
+    "What's the routing table code and default AD for an internal EIGRP route?",
+    "D, AD 90."
+  ],
+  [
+    "What metric does each use: RIP, OSPF, EIGRP, BGP?",
+    "RIP: hop count.\nOSPF: cost, from interface bandwidth.\nEIGRP: a formula built from bandwidth and delay.\nBGP: a list of path attributes checked in order."
+  ],
+  [
+    "Two OSPF paths lead to a network. An engineer lowers the bandwidth value on one path's interface. What happens?",
+    "That interface's OSPF cost goes up, so OSPF prefers the other path. The real link speed doesn't change."
+  ],
+  [
+    "Two OSPF routers on a shared link see each other but get stuck in EXSTART/EXCHANGE. Most likely cause?",
+    "An MTU mismatch between the two interfaces."
+  ],
+  [
+    "A link two hops away fails. What happens to a static route through it, versus an EIGRP route?",
+    "Static: stays installed and keeps sending traffic into the failure.\nEIGRP: learns about the failure and removes the route, or switches to another path if one exists."
+  ],
+  [
+    "Which routing protocol do you configure on the CCNA, and which one runs between ISPs?",
+    "OSPF on the CCNA. BGP between ISPs and organizations on the internet."
+  ],
+  [
+    "Why is BGP deliberately slow to react?",
+    "The internet has a huge number of networks going up and down all the time. If every change rippled out instantly, routers everywhere would be overwhelmed. BGP trades speed for stability."
+  ]
+]

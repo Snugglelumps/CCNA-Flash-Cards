@@ -1,0 +1,106 @@
+[
+  [
+    "What does a switch's MAC address table map, and what does an ARP table map?",
+    "MAC table: MAC address -> switch port (and VLAN). Used to forward frames.\nARP table: IP address -> MAC address. Used by anything with an IP to build frames."
+  ],
+  [
+    "A switch learns MAC addresses from which field of a frame?",
+    "The source MAC. It records which port that address arrived on."
+  ],
+  [
+    "A switch gets a frame for a MAC address that isn't in its table. What does it do? What does a router do with a packet for an unknown destination?",
+    "Switch: floods it out every port in that VLAN except the one it came in on.\nRouter: drops it (unless a default route catches it)."
+  ],
+  [
+    "A router has three interfaces, each connected to its own standalone switch with PCs. All default config. How many broadcast domains?",
+    "3. Each router interface is the edge of a broadcast domain."
+  ],
+  [
+    "Topology: PCs - SW1 - R1 - SW2 - SW3 - PCs. All switches default config. How many broadcast domains?",
+    "2. SW1's side is one. SW2 and SW3, cabled together, are the other. Daisy-chaining switches doesn't split anything."
+  ],
+  [
+    "Four switches cabled in a chain, PCs on each, no router, all default config. How many broadcast domains?",
+    "1. Switches flood broadcasts to each other; nothing in the chain stops them."
+  ],
+  [
+    "Six PCs on a hub vs six PCs on a switch: how many collision domains each?",
+    "Hub: 1. Everyone shares one wire.\nSwitch: 6. Each switch port is its own collision domain (and at full duplex, collisions can't happen at all)."
+  ],
+  [
+    "Does a router forward broadcasts? What's the exception you'll see on the CCNA?",
+    "No, not by default.\nip helper-address: the router catches DHCP broadcasts on that interface and forwards them as unicast to a DHCP server on another network."
+  ],
+  [
+    "A home router passes broadcasts between its LAN ports and Wi-Fi. Doesn't that contradict 'routers stop broadcasts'?",
+    "No. A home router is several devices in one box. The LAN ports and Wi-Fi are the switch part, so broadcasts flood there. They never cross the WAN port, which is the router part."
+  ],
+  [
+    "A Layer 2 switch has management IP 192.168.1.2/24 on Vlan1, up/up. Local hosts reach it. An admin on 10.1.1.50, across router 192.168.1.1, can't. Fix?",
+    "ip default-gateway 192.168.1.1 in global config.\nThe request arrives, but the switch has no way to send replies off its own subnet."
+  ],
+  [
+    "Same situation, but it's a multilayer switch with ip routing enabled. Does ip default-gateway fix it?",
+    "No. With routing on, ip default-gateway is ignored. It needs a route, like ip route 0.0.0.0 0.0.0.0 192.168.1.1."
+  ],
+  [
+    "interface Vlan42 has an IP and no shutdown, but shows down/down. What two things does it need?",
+    "1. VLAN 42 has to exist on this switch (vlan 42 in global config).\n2. At least one port in VLAN 42 has to be up: an access port with something connected, or a trunk that's up and forwarding VLAN 42."
+  ],
+  [
+    "An SVI shows 'administratively down'. What's missing?",
+    "no shutdown on the SVI. 'Administratively down' always means shutdown is configured."
+  ],
+  [
+    "Configure Fa0/5 as an access port in VLAN 10.",
+    "interface Fa0/5\n switchport mode access\n switchport access vlan 10"
+  ],
+  [
+    "On a switch that supports both ISL and dot1q, switchport mode trunk is rejected. What's missing?",
+    "switchport trunk encapsulation dot1q first. Until an encapsulation is picked, the switch won't accept trunk mode."
+  ],
+  [
+    "On a 2960, switchport trunk encapsulation dot1q doesn't exist. Why?",
+    "The 2960 only supports dot1q, so there's nothing to choose. Go straight to switchport mode trunk."
+  ],
+  [
+    "Configure a router subinterface on Gi0/0 to route VLAN 20 as 192.168.20.1/24.",
+    "interface Gi0/0.20\n encapsulation dot1Q 20\n ip address 192.168.20.1 255.255.255.0"
+  ],
+  [
+    "By default, which VLANs does a trunk carry?",
+    "All of them (1-4094). switchport trunk allowed vlan limits that list."
+  ],
+  [
+    "In show interfaces trunk, VLAN 30 shows under 'allowed on trunk' but not under 'allowed and active in management domain'. Cause?",
+    "VLAN 30 doesn't exist on this switch. Create it with vlan 30."
+  ],
+  [
+    "VLAN 30 shows as allowed and active, but not under 'in spanning tree forwarding state and not pruned'. Cause?",
+    "Spanning tree is blocking VLAN 30 on that trunk, or it's been pruned."
+  ],
+  [
+    "A PC plugged into a Cisco switch takes about 30 seconds to get on the network. Why, and what fixes it?",
+    "Spanning tree runs the port through listening (15 s) and learning (15 s) before forwarding. PortFast on edge ports skips the wait."
+  ],
+  [
+    "Does PortFast turn spanning tree off on a port?",
+    "No. It skips listening and learning so the port forwards right away, but the port still takes part in spanning tree."
+  ],
+  [
+    "In Packet Tracer, a newly connected switch port shows orange for about 30 seconds. Is the port 'blocked'?",
+    "No. It's in listening/learning. Blocking is a separate STP state, used to shut off a redundant path that would cause a loop."
+  ],
+  [
+    "Why are cheap unmanaged desktop switches dangerous on a business network?",
+    "No spanning tree. Cable one into a loop and broadcasts circulate forever: a broadcast storm that can take the network down."
+  ],
+  [
+    "Is spanning tree on by default on Cisco switches? How many instances?",
+    "Yes, on every port. Cisco runs a separate instance per VLAN."
+  ],
+  [
+    "Out of the box, which VLAN is every switch port in?",
+    "VLAN 1."
+  ]
+]

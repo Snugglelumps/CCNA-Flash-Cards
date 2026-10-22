@@ -1,0 +1,102 @@
+[
+  [
+    "What does a static route say, in plain English? Give the syntax.",
+    "'To reach this network, send to this neighbor.'\nip route <network> <mask> <next hop>\nExample: ip route 192.168.3.0 255.255.255.0 192.168.2.2"
+  ],
+  [
+    "A ping from R1 to a remote server works, but a ping from a PC behind R1 fails. What's the likely cause?",
+    "The far side has no return route to the PC's LAN. R1's own ping uses its exit interface IP as the source, which the far router reaches through a connected route."
+  ],
+  [
+    "PC LAN 192.168.10.0/24 - R1 - 10.0.0.0/30 - R2 - Server LAN 172.16.5.0/24. R1 is 10.0.0.1, R2 is 10.0.0.2. R1 has a route to 172.16.5.0/24 via 10.0.0.2. PC-to-server pings fail. Fix, and where?",
+    "On R2: ip route 192.168.10.0 255.255.255.0 10.0.0.1\nThe request gets there; the reply has no way back."
+  ],
+  [
+    "In that same setup, why can't R2's route to 192.168.10.0/24 point at 192.168.10.1 (R1's LAN interface)?",
+    "R2 has to reach the next hop directly, on a network it's connected to. 192.168.10.1 is on the far side of R1, so R2 can't hand it a packet."
+  ],
+  [
+    "R1's WAN interface is 10.0.0.1/30 and R1 has only connected routes. You add ip route 172.16.5.0 255.255.255.0 10.0.0.6. Is it installed?",
+    "No. 10.0.0.6 isn't in 10.0.0.0/30 (0-3), and R1 has no other route to it, so the next hop can't be resolved. It sits in the config, not the table."
+  ],
+  [
+    "Write a static route to 192.168.3.0/24 through R2 (192.168.2.2) out Gi0/0/0, three different ways.",
+    "Next hop: ip route 192.168.3.0 255.255.255.0 192.168.2.2\nExit interface: ip route 192.168.3.0 255.255.255.0 Gi0/0/0\nFully specified: ip route 192.168.3.0 255.255.255.0 Gi0/0/0 192.168.2.2"
+  ],
+  [
+    "With an exit-interface-only static route on Ethernet, who does the router ARP for?",
+    "The final destination itself, as if it were directly connected. It only works because the next router answers on its behalf (proxy ARP). That's why next-hop or fully specified is preferred on Ethernet."
+  ],
+  [
+    "Write a default route to an ISP router at 203.0.113.1.",
+    "ip route 0.0.0.0 0.0.0.0 203.0.113.1"
+  ],
+  [
+    "What's wrong with ip route 0.0.0.0 255.255.255.255 203.0.113.1?",
+    "The mask makes it a route to the single address 0.0.0.0, not a catch-all. A default route needs mask 0.0.0.0."
+  ],
+  [
+    "Your ISP assigns you 203.0.113.10/30. What has to be the next hop for your default route?",
+    "203.0.113.9. The /30 is 203.0.113.8-11; the only usable addresses are .9 and .10, and you're .10."
+  ],
+  [
+    "Your ISP assigns you 198.51.100.6/30. What's the ISP's address?",
+    "198.51.100.5. The /30 is .4-.7, usable .5 and .6, and you're .6."
+  ],
+  [
+    "ip route 0.0.0.0 0.0.0.0 216.0.5.1 is configured, but the interface on 216.0.5.0/30 is shut down. Is the default route in the routing table?",
+    "No. The router can't resolve the next hop (there's no connected route to 216.0.5.0/30), so the static route stays in the config but isn't installed. Gateway of last resort: not set."
+  ],
+  [
+    "A default route is configured, but show ip route says 'Gateway of last resort is not set'. Likely cause?",
+    "The route isn't installed because its next hop can't be resolved, usually because the ISP-facing interface is down or misaddressed."
+  ],
+  [
+    "How does a default route appear in show ip route?",
+    "S* 0.0.0.0/0 [1/0] via <next hop>, plus 'Gateway of last resort is <next hop>' at the top. The * marks it as the candidate default."
+  ],
+  [
+    "When does a router use the default route?",
+    "Only when nothing more specific matches. /0 is the least specific route possible."
+  ],
+  [
+    "You configure ip default-gateway 203.0.113.1 on a router with routing enabled. Does it get internet access?",
+    "No. A router with routing on ignores ip default-gateway. It needs ip route 0.0.0.0 0.0.0.0 203.0.113.1."
+  ],
+  [
+    "R1 - R2 - R3 in a line, with a LAN on R1 and a LAN on R3. Using only specific static routes, what's the minimum needed for the two LANs to reach each other?",
+    "4.\nR1: a route to R3's LAN.\nR2: routes to both LANs (it's connected to neither).\nR3: a route to R1's LAN."
+  ],
+  [
+    "Two static routes to 10.5.0.0/16, one via 192.168.2.2 and one via 192.168.4.2, both resolvable. What does the router do?",
+    "Installs both and load-balances across them. Same prefix, same AD, same metric."
+  ],
+  [
+    "What's a floating static route?",
+    "A static route given a worse (higher) AD than the route it backs up, like ip route 10.5.0.0 255.255.0.0 192.168.4.2 200. It stays out of the table until the main route disappears."
+  ],
+  [
+    "A static route to 10.5.0.0/16 is configured with AD 130. OSPF also learns 10.5.0.0/16. Which is installed?",
+    "OSPF's (AD 110). 110 beats 130. Raising a static route's AD can make it lose."
+  ],
+  [
+    "A static route to 10.5.0.0/16 is configured with AD 100. OSPF also learns 10.5.0.0/16. Which is installed?",
+    "The static route. 100 beats OSPF's 110."
+  ],
+  [
+    "How do you remove the static route to 192.168.3.0/24?",
+    "no ip route 192.168.3.0 255.255.255.0 (the next hop is optional when removing)."
+  ],
+  [
+    "R1 can ping R2's WAN address but nothing on R2's LAN, and no routing is configured on R1. Why?",
+    "R1 only knows its connected networks. It has no route to R2's LAN, so it drops those packets."
+  ],
+  [
+    "A static route's next hop is on a directly connected network, and that interface goes down. What happens to the static route?",
+    "It's removed from the table (the next hop can't be resolved anymore) and comes back when the interface comes up. It stays in the running config the whole time."
+  ],
+  [
+    "R1 has a static route through R2. R2's link to the remote LAN fails, but R1's link to R2 stays up. What happens to R1's static route?",
+    "Nothing. It stays installed and keeps sending traffic to R2, which drops it. Static routes don't know about failures past the next hop."
+  ]
+]

@@ -1,14 +1,122 @@
 [
   [
-    "One side of a link is hardcoded to 100/full. The other side is on auto. What does the auto side end up at, and why?",
-    "100/half.\nIt senses the speed from the signal, but duplex can't be sensed, so it falls back to half (at 10/100). Result: a duplex mismatch with the link up."
+    "SW1 Fa0/1 is hardcoded to 100/full. The PC on the other end is on auto. What does the PC settle on, and what's the result?",
+    "100/half.\nIt senses the speed from the signal, but duplex can't be sensed, so it falls back to half at 10/100. The link comes up with a duplex mismatch."
+  ],
+  [
+    "A PC's NIC is hardcoded to 10/full. The switch port is on auto. What does the switch port settle on?",
+    "10/half.\nThe auto side matches whatever speed it senses (10), then falls back to half duplex because it's at 10/100. Speed isn't a fixed default; only duplex is."
+  ],
+  [
+    "One side is hardcoded to 1000/full and the other is on auto. By the fallback rule, what duplex does the auto side pick?",
+    "Full.\nThe fallback is half at 10 and 100, full at 1000 and up. (In practice, gigabit over copper needs negotiation, so many devices won't link at all in this setup.)"
+  ],
+  [
+    "Both sides are on auto. The switch port supports 10/100/1000, but the PC's NIC only supports 10/100. What do they settle on?",
+    "100/full.\nBoth sides negotiate, share their capabilities, and pick the best mode they both support. Fallback rules only apply when one side isn't negotiating."
+  ],
+  [
+    "Both sides are on auto and both support 10/100/1000. What do they settle on?",
+    "1000/full. Both negotiate and pick the best mode they share."
+  ],
+  [
+    "SW1 Gi0/1 is hardcoded to 100/full. SW2 Gi0/1 is hardcoded to 10/full. What state is the link in?",
+    "down/down.\nBoth sides are hardcoded to different speeds, so neither can decode the other's signal. A true speed mismatch basically only happens when both sides are hardcoded."
+  ],
+  [
+    "SW1 is hardcoded to 100/full. SW2 is hardcoded to 100/half. What happens?",
+    "The link comes up at 100 with a duplex mismatch.\nSW2 (half) counts collisions and late collisions. SW1 (full) counts CRC errors and runts."
   ],
   [
     "In a duplex mismatch, which errors show up on the half-duplex side, and which on the full-duplex side?",
     "Half side: collisions and late collisions.\nFull side: CRC errors and runts, from receiving the half side's chopped-off frames."
   ],
   [
+    "A switch port facing a PC shows CRC errors and runts climbing, and zero collisions. Which end is running half duplex?",
+    "The PC.\nThe switch port is the full side: it's receiving the PC's chopped-off frames. The half side is the one counting collisions."
+  ],
+  [
+    "A switch port shows late collisions climbing and a CRC count of 0. Which end is running half duplex?",
+    "This port.\nOnly a port following half-duplex rules counts collisions. On a switched link, late collisions point at this port being the half side of a duplex mismatch."
+  ],
+  [
+    "show interfaces status shows a port at a-half, a-100, with a printer on the other end. What does 'a-' mean, and what's the likely story?",
+    "'a-' means the switch reached that value by auto-negotiation, so the switch side isn't hardcoded.\nModern gear doesn't choose half on purpose, so the printer is probably hardcoded and the switch fell back to half: a likely duplex mismatch."
+  ],
+  [
+    "Why can an auto side sense the other end's speed but not its duplex?",
+    "Each speed uses a different signal on the wire, so speed can be detected just by listening. Duplex isn't visible in the signal; it's only shared through negotiation. No negotiation, no duplex info."
+  ],
+  [
+    "A cable links fine at 100 Mbps but won't come up at gigabit. Both ends are gig-capable and on auto. Most likely cause?",
+    "A damaged pair that 10/100 doesn't use.\n10/100 uses two pairs (pins 1, 2, 3, 6). 1000BASE-T uses all four, so a bad pair on pins 4, 5, 7, 8 breaks gig but not 100."
+  ],
+  [
+    "How does full duplex send and receive at the same time at 100 Mbps, versus at 1000 Mbps?",
+    "100: one pair sends, a separate pair receives.\n1000: all four pairs carry both directions at once. Each end subtracts its own signal from what's on the wire to hear the other side."
+  ],
+  [
+    "What is CSMA/CD, and where is it still used today?",
+    "Carrier Sense Multiple Access with Collision Detection: listen before sending, and if two devices collide, stop, jam, wait a random time, and retry.\nToday it's only active on half-duplex ports. Full duplex turns it off."
+  ],
+  [
+    "How does a wired half-duplex port detect a collision?",
+    "It hears a signal on its receive pair while it's transmitting on its send pair. Hearing something while talking means a collision."
+  ],
+  [
+    "Why does Wi-Fi use CSMA/CA instead of CSMA/CD?",
+    "A radio can't hear other stations while it's transmitting; its own signal drowns everything out. So Wi-Fi avoids collisions (a random wait before sending) and uses acknowledgments: no ACK means assume a collision and resend."
+  ],
+  [
+    "What's a late collision, and what does it usually point to?",
+    "A collision detected after the first 64 bytes of a frame. On a properly built network that shouldn't happen.\nUsual causes: a duplex mismatch, or a cable run that's too long."
+  ],
+  [
+    "Why is the minimum Ethernet frame 64 bytes?",
+    "So the sender is still transmitting when a collision from the far end of a properly sized network reaches it. With shorter frames, a sender could finish before hearing the collision and never know."
+  ],
+  [
     "What's the maximum standard Ethernet frame size, and where does the number come from?",
     "1518 bytes = 1500 payload (MTU) + 14 header + 4 FCS.\nAnything bigger arriving on a port counts as a giant."
+  ],
+  [
+    "A 9018-byte frame arrives on a port with the default MTU. What counter does it hit?",
+    "Giants. It's bigger than the 1518-byte maximum the port accepts. Classic cause: one side sending jumbo frames, the other not configured for them."
+  ],
+  [
+    "A 48-byte frame arrives on a port. What counter does it hit, and what's a common cause?",
+    "Runts (under the 64-byte minimum).\nCommon cause: the full-duplex side of a duplex mismatch receiving frames the half side cut off mid-send."
+  ],
+  [
+    "A Cisco interface is at its default MTU of 1500. The Juniper on the other end shows MTU 1514. Is that a mismatch?",
+    "No. Same limit. Juniper's physical MTU includes the 14-byte Ethernet header; Cisco's counts only the payload. Juniper's inet MTU under the unit shows 1500."
+  ],
+  [
+    "A storage network turns on jumbo frames (MTU 9000) on the servers and the NAS. Large transfers fail, small ones work. Most likely problem?",
+    "A device in the path is still at MTU 1500, so the big frames get dropped there as giants. Every device in the path has to support jumbo frames."
+  ],
+  [
+    "Why can an MTU mismatch go unnoticed for weeks?",
+    "Small packets fit, so pings, SSH, and routing updates all work. Only full-size packets fail, and they're dropped quietly instead of showing up as CRC errors. It surfaces when bulk traffic moves through the path."
+  ],
+  [
+    "Why do jumbo frames speed up big transfers?",
+    "Every frame carries roughly the same header overhead. A 9000-byte frame carries six times the data of a 1500-byte one, so the same file needs about a sixth as many frames and headers to send and process."
+  ],
+  [
+    "A user on a 500 Mbps plan sees downloads at 62 MB/s and says they're getting an eighth of their speed. Are they?",
+    "No. 62 MB/s x 8 = 496 Mbps. They're getting essentially the full plan. Megabytes vs megabits."
+  ],
+  [
+    "Roughly how long does a 40 GB file take over a 100 Mbps link, ignoring overhead?",
+    "40 GB x 8 = 320 Gb = 320,000 Mb.\n320,000 / 100 = 3,200 seconds, about 53 minutes."
+  ],
+  [
+    "A server with a 10 Gbps NIC backs up 250 GB to a NAS on a 1 Gbps switch port. Roughly how long?",
+    "About 33 minutes.\n250 GB x 8 = 2,000 Gb, / 1 Gbps = 2,000 s. The slowest link in the path sets the speed; the 10G NIC doesn't help."
+  ],
+  [
+    "Roughly how long does 1.5 TB take over a 10 Gbps link, ignoring overhead?",
+    "1.5 TB x 8 = 12 Tb = 12,000 Gb.\n12,000 / 10 = 1,200 seconds, 20 minutes."
   ]
 ]

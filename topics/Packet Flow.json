@@ -1,0 +1,66 @@
+[
+  [
+    "How does a host decide whether to send straight to a destination or to its gateway?",
+    "It applies its own mask to its own IP and to the destination. Same network: ARP for the destination directly. Different network: ARP for the default gateway and send it there."
+  ],
+  [
+    "PC 192.168.1.10/24 sends to 192.168.1.200. Who does it ARP for?",
+    "192.168.1.200 directly. They're in the same /24."
+  ],
+  [
+    "PC 192.168.1.10/25 sends to 192.168.1.200. Who does it ARP for?",
+    "Its default gateway. With /25, the PC is in .0-.127 and .200 is in .128-.255, a different network."
+  ],
+  [
+    "PC 10.0.0.70/26 sends to 10.0.0.60. Direct or gateway?",
+    "Gateway. .70 is in 10.0.0.64/26 (64-127); .60 is in 10.0.0.0/26 (0-63)."
+  ],
+  [
+    "PC 172.16.8.20/22 sends to 172.16.10.5. Direct or gateway?",
+    "Direct. /22 blocks go in 4s in the third octet, so this one is 172.16.8.0-172.16.11.255. Both addresses are inside it."
+  ],
+  [
+    "PC 192.168.1.10/24 pings 8.8.8.8. What are the destination IP and destination MAC in the frame leaving the PC?",
+    "Destination IP 8.8.8.8. Destination MAC: the default gateway's MAC."
+  ],
+  [
+    "Does a host ever ARP for an IP on a different subnet?",
+    "No. It ARPs for its gateway instead. (A wrong mask can trick it into thinking a remote address is local.)"
+  ],
+  [
+    "A PC is misconfigured as 192.168.1.10/16 instead of /24. It tries to reach 192.168.5.20, which is behind its router. What happens?",
+    "The PC thinks 192.168.5.20 is local and ARPs for it directly. It only works if the router answers on the server's behalf (proxy ARP, on by default on Cisco router interfaces). Otherwise it fails."
+  ],
+  [
+    "A router forwards a packet from one LAN to another. What changes, and what stays the same?",
+    "Changes: source and destination MAC (a new frame for the next link), and TTL drops by 1.\nStays: source and destination IP (unless NAT is involved)."
+  ],
+  [
+    "PC1 -> R1 -> R2 -> Server. What's the destination MAC on each leg of a packet from PC1 to the Server?",
+    "PC1 to R1: R1's LAN interface MAC.\nR1 to R2: R2's MAC on the shared link.\nR2 to Server: the Server's MAC.\nThe destination IP is the Server's the whole way."
+  ],
+  [
+    "Does a switch change the MAC addresses in a frame it forwards?",
+    "No. It reads the destination MAC to pick a port and forwards the frame unchanged."
+  ],
+  [
+    "ARP request and ARP reply: broadcast or unicast?",
+    "Request: broadcast ('who has this IP?').\nReply: unicast, straight back to the asker."
+  ],
+  [
+    "R1 has ip route 192.168.3.0 255.255.255.0 192.168.2.2 and is connected to 192.168.2.0/24. Walk through how R1 forwards a packet to 192.168.3.100.",
+    "1. Look up 192.168.3.100: matches the static route, next hop 192.168.2.2.\n2. Look up 192.168.2.2: matches the connected route for 192.168.2.0/24.\n3. ARP for 192.168.2.2 out that interface to get R2's MAC.\n4. Send the frame to R2's MAC, destination IP still 192.168.3.100."
+  ],
+  [
+    "When a router sends its own ping, what source IP does it use?",
+    "The IP of the interface the ping leaves from, unless you specify otherwise."
+  ],
+  [
+    "What does ping 192.168.3.100 source Gi0/0 do, and why use it?",
+    "Makes the router use Gi0/0's IP (its LAN address) as the source. It tests the path the way a PC behind that interface would, including the return route."
+  ],
+  [
+    "A router gets a packet with TTL 1 that it needs to forward. What happens?",
+    "It decrements TTL to 0, drops the packet, and sends an ICMP Time Exceeded back to the source."
+  ]
+]

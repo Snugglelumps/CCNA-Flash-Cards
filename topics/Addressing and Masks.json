@@ -1,0 +1,126 @@
+[
+  [
+    "/24: subnet mask and wildcard mask?",
+    "255.255.255.0\nWildcard 0.0.0.255"
+  ],
+  [
+    "/30: subnet mask and wildcard mask?",
+    "255.255.255.252\nWildcard 0.0.0.3"
+  ],
+  [
+    "/26: subnet mask and wildcard mask?",
+    "255.255.255.192\nWildcard 0.0.0.63"
+  ],
+  [
+    "/27: subnet mask and wildcard mask?",
+    "255.255.255.224\nWildcard 0.0.0.31"
+  ],
+  [
+    "/29: subnet mask and wildcard mask?",
+    "255.255.255.248\nWildcard 0.0.0.7"
+  ],
+  [
+    "/25: subnet mask and wildcard mask?",
+    "255.255.255.128\nWildcard 0.0.0.127"
+  ],
+  [
+    "/20: subnet mask and wildcard mask?",
+    "255.255.240.0\nWildcard 0.0.15.255"
+  ],
+  [
+    "/16 and /32: subnet masks and wildcards?",
+    "/16: 255.255.0.0, wildcard 0.0.255.255\n/32: 255.255.255.255, wildcard 0.0.0.0 (one exact address)"
+  ],
+  [
+    "Mask 255.255.255.248: what prefix length?",
+    "/29"
+  ],
+  [
+    "Mask 255.255.252.0: what prefix length?",
+    "/22"
+  ],
+  [
+    "Wildcard 0.0.0.127: what prefix length?",
+    "/25"
+  ],
+  [
+    "Wildcard 0.0.3.255: what prefix length?",
+    "/22 (mask 255.255.252.0)"
+  ],
+  [
+    "How do you get a wildcard mask from a subnet mask?",
+    "Subtract each octet from 255.\n255.255.255.192 -> 0.0.0.63"
+  ],
+  [
+    "10.0.0.5/30: network, broadcast, and usable hosts?",
+    "Network 10.0.0.4, broadcast 10.0.0.7, usable 10.0.0.5-10.0.0.6.\n/30 blocks go in 4s: 0, 4, 8, 12..."
+  ],
+  [
+    "216.0.5.2/30: network, broadcast, and the other usable address?",
+    "Network 216.0.5.0, broadcast 216.0.5.3. The other usable address is 216.0.5.1."
+  ],
+  [
+    "172.16.40.77/27: network, broadcast, and usable range?",
+    "/27 blocks go in 32s: 0, 32, 64, 96...\nNetwork 172.16.40.64, broadcast 172.16.40.95, usable .65-.94."
+  ],
+  [
+    "192.168.10.130/26: network and broadcast?",
+    "/26 blocks go in 64s: 0, 64, 128, 192.\nNetwork 192.168.10.128, broadcast 192.168.10.191."
+  ],
+  [
+    "10.1.37.200/20: network and broadcast?",
+    "/20 blocks go in 16s in the third octet: 0, 16, 32, 48...\nNetwork 10.1.32.0, broadcast 10.1.47.255."
+  ],
+  [
+    "Usable hosts in a /30, /29, /27, and /24?",
+    "/30: 2\n/29: 6\n/27: 30\n/24: 254\n(2 to the power of the host bits, minus network and broadcast.)"
+  ],
+  [
+    "Are 10.0.0.1/30 and 10.0.0.5/30 in the same subnet?",
+    "No. .1 is in 10.0.0.0/30 (0-3); .5 is in 10.0.0.4/30 (4-7). Two routers addressed like this won't talk."
+  ],
+  [
+    "Are 192.168.1.62/26 and 192.168.1.65/26 in the same subnet?",
+    "No. .62 is in 192.168.1.0/26 (0-63); .65 is in 192.168.1.64/26 (64-127)."
+  ],
+  [
+    "Are 192.168.1.20/25 and 192.168.1.100/25 in the same subnet?",
+    "Yes. Both are in 192.168.1.0/25 (0-127)."
+  ],
+  [
+    "ip address 10.10.0.0 255.255.255.0 returns '% Bad mask /24 for address 10.10.0.0'. What's wrong?",
+    "The address, not the mask. With /24, 10.10.0.0 is the network address, which can't go on an interface. Use a host address like 10.10.0.1."
+  ],
+  [
+    "Can you put 10.10.0.255 255.255.254.0 on an interface?",
+    "Yes. /23 spans 10.10.0.0-10.10.1.255, so 10.10.0.255 is an ordinary host address. It only looks like a broadcast."
+  ],
+  [
+    "Can you put 192.168.5.63 255.255.255.192 on an interface?",
+    "No. With /26, .63 is the broadcast address of 192.168.5.0/26."
+  ],
+  [
+    "Gi0/0 has 10.1.1.1/24. You configure 10.1.1.200/24 on Gi0/1. What happens?",
+    "Rejected: '% 10.1.1.0 overlaps with GigabitEthernet0/0'. A router won't put two interfaces in the same subnet."
+  ],
+  [
+    "Gi0/0 has 10.1.1.1/25. You configure 10.1.1.129/25 on Gi0/1. What happens?",
+    "Accepted. 10.1.1.0/25 (0-127) and 10.1.1.128/25 (128-255) are different subnets."
+  ],
+  [
+    "Why do point-to-point links between routers usually use /30?",
+    "It has exactly two usable addresses, one for each end, and wastes nothing else."
+  ],
+  [
+    "What are the private IPv4 ranges?",
+    "10.0.0.0/8\n172.16.0.0/12 (172.16.0.0-172.31.255.255)\n192.168.0.0/16"
+  ],
+  [
+    "Is 172.32.10.5 a private address? 172.31.200.1?",
+    "172.32.10.5: no, it's public. The private block stops at 172.31.255.255.\n172.31.200.1: yes."
+  ],
+  [
+    "Does an address's class (A/B/C) matter to modern routing?",
+    "No. Routing is classless: only the mask matters. Classes still show up in IOS output (the 'variably subnetted' header) and as the default size when a routing protocol network statement has no wildcard."
+  ]
+]

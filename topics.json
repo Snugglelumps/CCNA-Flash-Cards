@@ -1,5 +1,12 @@
 [
   "Ethernet and Physical Layer.json",
   "Interfaces and Troubleshooting.json",
-  "Routing Fundamentals.json"
+  "Switching and Layer 2.json",
+  "Device Access.json",
+  "Discovery Protocols.json",
+  "Addressing and Masks.json",
+  "Packet Flow.json",
+  "Static and Default Routing.json",
+  "Routing Fundamentals.json",
+  "Dynamic Routing Basics.json"
 ]

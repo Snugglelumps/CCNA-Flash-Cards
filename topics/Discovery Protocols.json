@@ -1,0 +1,50 @@
+[
+  [
+    "CDP vs LLDP: who made each, and which is on by default on Cisco gear?",
+    "CDP: Cisco proprietary, on by default.\nLLDP: IEEE 802.1AB standard, off by default on Cisco."
+  ],
+  [
+    "How do you turn on LLDP on a Cisco device?",
+    "lldp run in global config. Check with show lldp neighbors."
+  ],
+  [
+    "A Cisco router connects to a Juniper switch, and show cdp neighbors is empty. Why, and what do you do?",
+    "Juniper doesn't speak CDP. Turn on LLDP with lldp run; Juniper speaks LLDP."
+  ],
+  [
+    "On R1, show cdp neighbors: Device ID SW1, Local Intrfce Gig 0/0, Port ID Gig 0/1. Which SW1 port is R1 plugged into?",
+    "Gi0/1. Port ID is the neighbor's port; Local Intrfce is your own."
+  ],
+  [
+    "On SW1, show cdp neighbors: Device ID R1, Local Intrfce Gig 1/0/24, Port ID Gig 0/0/1. Which port on each device is the link?",
+    "SW1's Gi1/0/24 (Local Intrfce) connects to R1's Gi0/0/1 (Port ID)."
+  ],
+  [
+    "show cdp neighbors doesn't show the neighbor's IP. How do you get it?",
+    "show cdp neighbors detail"
+  ],
+  [
+    "Does CDP need IP configured to work?",
+    "No. It's Layer 2, sent directly on the link."
+  ],
+  [
+    "Can CDP show a device two switches away? Can ARP?",
+    "CDP: no, only directly connected neighbors.\nARP: yes, if it's on the same subnet and has talked, but ARP can't tell how far away it is."
+  ],
+  [
+    "You just ran lldp run and show lldp neighbors is empty. Problem?",
+    "Probably not yet. LLDP advertises every 30 seconds by default; wait for the next one."
+  ],
+  [
+    "What are the default CDP and LLDP timers?",
+    "CDP: advertise every 60 s, hold 180 s.\nLLDP: advertise every 30 s, hold 120 s."
+  ],
+  [
+    "CDP and LLDP are both off. How do you find which switch port a router's Gi0/0 is plugged into?",
+    "Get Gi0/0's MAC from show interfaces on the router, then find that MAC in the switch's table with show mac address-table."
+  ],
+  [
+    "Why turn CDP off on an ISP-facing interface, and how?",
+    "It advertises your device name, model, IOS version, and IP to whoever's on the other end. no cdp enable on that interface (no cdp run turns it off everywhere)."
+  ]
+]

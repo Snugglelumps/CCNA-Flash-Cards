@@ -4,15 +4,91 @@
     "1. Longest prefix match\n2. Administrative distance (only between identical prefixes)\n3. Metric (only between routes with the same AD)\nA full tie: both are installed and traffic is load-balanced."
   ],
   [
-    "ip route 0.0.0.0 0.0.0.0 216.0.5.1 is configured, but the interface on 216.0.5.0/30 is shut down. Is the default route in the routing table?",
-    "No. The router can't resolve the next hop (there's no connected route to 216.0.5.0/30), so the static route stays in the config but isn't installed. Gateway of last resort: not set."
-  ],
-  [
-    "A ping from R1 to a remote server works, but a ping from a PC behind R1 fails. What's the likely cause?",
-    "The far side has no return route to the PC's LAN. R1's own ping uses its exit interface IP as the source, which the far router reaches through a connected route."
-  ],
-  [
     "What are the default administrative distances for connected, static, EIGRP, OSPF, and RIP?",
     "Connected 0\nStatic 1\nEIGRP 90\nOSPF 110\nRIP 120"
+  ],
+  [
+    "What are the default administrative distances for eBGP and iBGP?",
+    "eBGP 20\niBGP 200"
+  ],
+  [
+    "AD vs metric: what does each decide?",
+    "AD: which source to believe, between different protocols or static, for the same prefix.\nMetric: which path is best, between routes from the same source."
+  ],
+  [
+    "What do these codes mean in show ip route: C, L, S, S*, D, O?",
+    "C connected\nL local (the router's own interface IP, as a /32)\nS static\nS* static default (candidate default)\nD EIGRP\nO OSPF"
+  ],
+  [
+    "Read this line: D 192.168.3.0/24 [90/3072] via 192.168.2.2, 00:36:12, Ethernet0/1",
+    "Learned by EIGRP. Network 192.168.3.0/24. AD 90, metric 3072. Next hop 192.168.2.2. In the table for 36 min 12 s. Leaves out Ethernet0/1."
+  ],
+  [
+    "What do the 1 and the 0 mean in S 192.168.3.0/24 [1/0] via 192.168.2.2?",
+    "1: administrative distance (static).\n0: metric. Static routes don't really have one."
+  ],
+  [
+    "What's the L 192.168.2.1/32 entry in a routing table?",
+    "A local route: the router's own IP on that interface, as a /32 host route. It's created along with the C route whenever the interface is up/up with an IP."
+  ],
+  [
+    "What does '192.168.1.0/24 is variably subnetted, 2 subnets, 2 masks' mean?",
+    "It's a header grouping routes under the classful network. The two masks are usually the /24 C route and the /32 L route. Bookkeeping, not a problem."
+  ],
+  [
+    "Routes: 0.0.0.0/0 via ISP, 10.0.0.0/8 via R2, 10.1.0.0/16 via R3, 10.1.5.0/24 via R4. Where do 10.1.5.20, 10.1.9.9, 10.2.2.2, and 172.16.1.1 go?",
+    "10.1.5.20 -> R4 (/24)\n10.1.9.9 -> R3 (/16)\n10.2.2.2 -> R2 (/8)\n172.16.1.1 -> ISP (default)"
+  ],
+  [
+    "Routes: 10.20.0.0/16 via A, 10.20.30.0/24 via B. Where does 10.20.31.5 go?",
+    "A. 10.20.30.0/24 only covers 10.20.30.x, so it doesn't match. The /16 does."
+  ],
+  [
+    "Routes: 192.168.1.0/24 via A, 192.168.1.0/25 via B, 192.168.1.128/26 via C. Where do 192.168.1.100, 192.168.1.150, and 192.168.1.200 go?",
+    ".100 -> B (/25 covers 0-127)\n.150 -> C (/26 covers 128-191)\n.200 -> A (only the /24 matches)"
+  ],
+  [
+    "Routes: 172.16.0.0/12 via A, 172.16.32.0/19 via B, default via C. Where do 172.16.50.1 and 172.16.70.1 go?",
+    "172.16.50.1 -> B (the /19 covers 172.16.32.0-172.16.63.255)\n172.16.70.1 -> A (outside the /19, inside the /12)"
+  ],
+  [
+    "Routes: 192.168.3.0/24 via R2, and a default via ISP. Where does 192.168.30.5 go?",
+    "ISP. 192.168.30.5 isn't in 192.168.3.0/24. Read the third octet carefully."
+  ],
+  [
+    "A static route and an EIGRP route both exist for 192.168.3.0/24. Which is installed?",
+    "Static. Same prefix, so AD decides: 1 beats 90."
+  ],
+  [
+    "S 10.0.0.0/8 [1/0] and D 10.1.1.0/24 [90/3072] are both in the table. Which does a packet for 10.1.1.50 use?",
+    "The EIGRP /24. Different prefixes, so longest match decides; AD never comes into it."
+  ],
+  [
+    "EIGRP and OSPF both learn 10.9.0.0/16. Which is installed?",
+    "EIGRP. AD 90 beats 110."
+  ],
+  [
+    "OSPF and RIP both learn 10.9.0.0/16. Which is installed?",
+    "OSPF. AD 110 beats 120."
+  ],
+  [
+    "iBGP and OSPF both learn 10.9.0.0/16. Which is installed?",
+    "OSPF. AD 110 beats iBGP's 200."
+  ],
+  [
+    "Two OSPF routes to the same prefix, cost 20 and cost 30. Which is used? What if both were cost 20?",
+    "Cost 20. If both were 20, both would be installed and traffic load-balanced."
+  ],
+  [
+    "A static route replaces an EIGRP route in the table. Where does the EIGRP route go?",
+    "It stays in EIGRP's own table (show ip eigrp topology) and is reinstalled automatically if the static route is removed."
+  ],
+  [
+    "Gi0/1 has 10.1.1.1/24 configured and is down/down. What does the routing table show for 10.1.1.0/24?",
+    "Nothing. Connected and local routes only exist while the interface is up/up. IOS never lists a route as 'inactive'."
+  ],
+  [
+    "A router with no default route gets a packet for 8.8.8.8, and nothing matches. What happens?",
+    "It's dropped, and the router typically sends an ICMP unreachable back to the source. Routers never flood or guess."
   ]
 ]

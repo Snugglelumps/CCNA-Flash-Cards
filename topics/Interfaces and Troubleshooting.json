@@ -4,11 +4,95 @@
     "Administratively down: someone configured shutdown.\nDown/down: not shut, but no working link (no cable, far end down, bad cable, speed mismatch)."
   ],
   [
+    "Right after you configure an IP on a router interface, show ip interface brief shows it 'administratively down / down'. Why?",
+    "Router interfaces ship shut down. Configuring an IP doesn't turn the interface on; it still needs no shutdown."
+  ],
+  [
+    "Out of the box, which ports on a new switch are shut down? On a new router?",
+    "Switch: none. Ports are enabled and show down/down until something's plugged in.\nRouter: every interface is administratively down until no shutdown."
+  ],
+  [
+    "An interface shows up/down: status up, protocol down. What does that mean?",
+    "Layer 1 is up, but the Layer 2 protocol isn't. Rare on Ethernet; on serial links the classic causes are an encapsulation or keepalive mismatch between the two ends."
+  ],
+  [
+    "A switch port shows err-disabled. What does that mean, and how do you bring it back by hand?",
+    "The switch shut the port itself after detecting a problem, like a security violation or repeated flapping.\nFix the cause, then shutdown and no shutdown on the interface."
+  ],
+  [
+    "Input errors 500, CRC 500. What does that tell you?",
+    "Every input error is a corrupted frame. Think cabling or interference, or this being the full-duplex side of a duplex mismatch."
+  ],
+  [
     "Input errors are climbing, but CRC is 0. What does that tell you?",
     "Input errors is a total. With CRC at 0, the errors are coming from its other parts: giants, runts, overruns, and so on. Check those counters."
   ],
   [
+    "Why does show interfaces report CRC errors only on the input side?",
+    "The sender just attaches the checksum. Only the receiver can recalculate it and compare. Once a frame leaves, the sender can't know what happened to it."
+  ],
+  [
+    "Both ends of a link are confirmed full duplex, but CRC errors keep climbing. Where do you look?",
+    "Layer 1: the cable first, then interference, a bad port, or a bad NIC or optic."
+  ],
+  [
+    "A router has been up two years. 'Last clearing of show interface counters: never', CRC 4,312. A user complains about slowness today. Next step?",
+    "clear counters on that interface, wait, and check whether CRC is still climbing. Counters add up since boot, so 4,312 could be ancient history."
+  ],
+  [
+    "txload 243/255, rxload 12/255, no error counters increasing. Users say the internet is slow. What's going on?",
+    "The outbound direction is about 95% busy. Real congestion, not a fault. txload is traffic this interface sends."
+  ],
+  [
+    "rxload 251/255, txload 30/255, reliability 255/255. What's going on?",
+    "Inbound traffic has the link nearly saturated. Reliability 255/255 means no errors, so it's a capacity problem, not a fault."
+  ],
+  [
+    "reliability 190/255 on an interface. Good or bad?",
+    "Bad. 255/255 is perfect. 190/255 means a meaningful share of frames are hitting errors. Check the error counters."
+  ],
+  [
     "What does the bandwidth command on an interface actually change?",
     "Only the number used in calculations like OSPF cost. The link's real speed doesn't change."
+  ],
+  [
+    "An admin sets bandwidth 10000 on a 100 Mbps router interface to limit it to 10 Mbps. What actually happens?",
+    "Nothing changes on the wire; the link still runs at 100. Only routing calculations (like OSPF cost) see the new value, so it can change which way traffic is routed."
+  ],
+  [
+    "Interface resets keep climbing on a port. What does that suggest?",
+    "The interface keeps going down and back up, usually because of errors underneath: a duplex mismatch, a bad cable, or a failing NIC. Users experience it as random disconnects."
+  ],
+  [
+    "show ip interface Gi0/0 vs show interfaces Gi0/0: what's the difference?",
+    "'ip' in the command means the Layer 3 view: addressing and IP settings.\nshow interfaces is the physical/Layer 2 view: status, MAC, speed, duplex, load, counters."
+  ],
+  [
+    "Which command gives one line per interface with IP address, status, and protocol?",
+    "show ip interface brief"
+  ],
+  [
+    "On a switch, which command shows each port's status, VLAN, duplex, and speed on one line?",
+    "show interfaces status"
+  ],
+  [
+    "Write a filter that shows every interface's status line plus its duplex/speed line.",
+    "show interfaces | include line protocol|duplex\nThe | inside the include means OR. No spaces around it, and it's case-sensitive."
+  ],
+  [
+    "show interfaces | include line duplex|speed returns only duplex lines, with no interface names. Why?",
+    "The pattern is two phrases: 'line duplex' OR 'speed'. 'line duplex' never appears, and 'speed' only matches the duplex lines through 'Auto-speed'."
+  ],
+  [
+    "What does GigabitEthernet0/1/2 tell you about where the port lives?",
+    "slot/subslot/port: slot 0, subslot 1, port 2. On modular routers, 0/0/x is usually built in, and 0/1/x or 0/2/x are module bays. Same idea as Juniper's ge-0/1/2 (FPC/PIC/port)."
+  ],
+  [
+    "Why shut a port before applying a lot of config, then bring it up once at the end?",
+    "IOS applies every line the moment you press Enter. Some changes bounce the port, and repeated flapping can err-disable it. Shutting first is IOS's stand-in for a Junos commit."
+  ],
+  [
+    "You hardcode speed and duplex on a busy switch port during business hours. What will users see?",
+    "A brief outage. Changing speed or duplex bounces the interface."
   ]
 ]
