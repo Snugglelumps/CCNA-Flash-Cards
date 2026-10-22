@@ -1,0 +1,14 @@
+[
+  [
+    "One side of a link is hardcoded to 100/full. The other side is on auto. What does the auto side end up at, and why?",
+    "100/half.\nIt senses the speed from the signal, but duplex can't be sensed, so it falls back to half (at 10/100). Result: a duplex mismatch with the link up."
+  ],
+  [
+    "In a duplex mismatch, which errors show up on the half-duplex side, and which on the full-duplex side?",
+    "Half side: collisions and late collisions.\nFull side: CRC errors and runts, from receiving the half side's chopped-off frames."
+  ],
+  [
+    "What's the maximum standard Ethernet frame size, and where does the number come from?",
+    "1518 bytes = 1500 payload (MTU) + 14 header + 4 FCS.\nAnything bigger arriving on a port counts as a giant."
+  ]
+]

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CCNA Flashcards</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 16px;
+    background: #f4f4f4;
+    color: #111;
+  }
+  .panel {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  h1 {
+    font-size: 1.3em;
+    margin-top: 0;
+  }
+  label {
+    display: block;
+    padding: 8px 0;
+    font-size: 1.1em;
+  }
+  input[type="checkbox"] {
+    transform: scale(1.4);
+    margin-right: 10px;
+  }
+  input[type="number"] {
+    width: 70px;
+    font-size: 1.1em;
+    padding: 4px;
+  }
+  button {
+    display: block;
+    width: 100%;
+    font-size: 1.2em;
+    padding: 14px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #1a73e8;
+    color: #fff;
+  }
+  .question {
+    font-size: 1.2em;
+    font-weight: bold;
+    white-space: pre-wrap;
+  }
+  .answer {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #888;
+    white-space: pre-wrap;
+  }
+  .small {
+    color: #888;
+    font-size: 0.9em;
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: #1b1b1b;
+      color: #eee;
+    }
+    .panel {
+      background: #2a2a2a;
+    }
+    input[type="number"] {
+      background: #333;
+      color: #eee;
+      border: 1px solid #555;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="panel">
+
+  <!-- Screen 1: pick topics -->
+  <div id="setupScreen">
+    <h1>CCNA Flashcards</h1>
+    <div id="topicList"></div>
+    <label>Cards per topic: <input type="number" id="cardsPerTopic" min="1" value="5"></label>
+    <button id="startButton">Make deck</button>
+  </div>
+
+  <!-- Screen 2: run the deck -->
+  <div id="cardScreen" style="display: none;">
+    <div class="small" id="progressText"></div>
+    <div class="small" id="topicText"></div>
+    <p class="question" id="questionText"></p>
+    <div class="answer" id="answerText" style="display: none;"></div>
+    <button id="revealButton">Reveal</button>
+    <button id="nextButton" style="display: none;">Next</button>
+  </div>
+
+  <!-- Screen 3: deck finished -->
+  <div id="doneScreen" style="display: none;">
+    <h1>Deck done</h1>
+    <button id="newDeckButton">New deck</button>
+  </div>
+
+</div>
+
+<script>
+// The file names listed in topics.json
+let topicFileNames = [];
+
+// Each topic file's cards, looked up by file name.
+// Each card is a list: position 0 is the question, position 1 is the answer.
+let cardsByTopicFile = {};
+
+// The deck being run right now
+let currentDeck = [];
+let cardIndex = 0;
+
+loadTopics();
+
+async function loadTopics() {
+  // Read the list of topic files
+  const topicListResponse = await fetch("topics.json");
+  topicFileNames = await topicListResponse.json();
+
+  // Read each topic file
+  for (const fileName of topicFileNames) {
+    const topicFileResponse = await fetch("topics/" + fileName);
+    cardsByTopicFile[fileName] = await topicFileResponse.json();
+  }
+
+  showTopicCheckboxes();
+}
+
+function showTopicCheckboxes() {
+  // Bring back the choices from last time
+  const savedTopics = JSON.parse(localStorage.getItem("selectedTopics") || "[]");
+  const savedCardsPerTopic = localStorage.getItem("cardsPerTopic");
+  if (savedCardsPerTopic) {
+    document.getElementById("cardsPerTopic").value = savedCardsPerTopic;
+  }
+
+  // One checkbox per topic file, labeled with the file name minus ".json" and its card count
+  const topicList = document.getElementById("topicList");
+  topicList.innerHTML = "";
+  for (const fileName of topicFileNames) {
+    const topicName = fileName.replace(".json", "");
+    const topicCardCount = cardsByTopicFile[fileName].length;
+
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = fileName;
+    checkbox.checked = savedTopics.includes(fileName);
+
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(topicName + " (" + topicCardCount + ")"));
+    topicList.appendChild(label);
+  }
+}
+
+document.getElementById("startButton").onclick = function () {
+  // Which topic files are checked
+  const checkedBoxes = document.querySelectorAll("#topicList input:checked");
+  const selectedTopics = [];
+  for (const checkbox of checkedBoxes) {
+    selectedTopics.push(checkbox.value);
+  }
+  const cardsPerTopic = Number(document.getElementById("cardsPerTopic").value);
+
+  // Remember the choices for next time
+  localStorage.setItem("selectedTopics", JSON.stringify(selectedTopics));
+  localStorage.setItem("cardsPerTopic", cardsPerTopic);
+
+  currentDeck = [];
+  for (const fileName of selectedTopics) {
+    const topicName = fileName.replace(".json", "");
+    const topicCards = cardsByTopicFile[fileName];
+
+    // Build the list of positions 0 to n-1, where n is the number of cards in this topic
+    const positions = [];
+    for (let position = 0; position < topicCards.length; position++) {
+      positions.push(position);
+    }
+
+    // Put the positions in random order, then keep the first N
+    shuffle(positions);
+    const pickedPositions = positions.slice(0, cardsPerTopic);
+
+    // Add the cards at those positions to the deck
+    for (const position of pickedPositions) {
+      const card = topicCards[position];
+      currentDeck.push({
+        topicName: topicName,
+        question: card[0],
+        answer: card[1]
+      });
+    }
+  }
+
+  // Mix the topics together
+  shuffle(currentDeck);
+
+  cardIndex = 0;
+  document.getElementById("setupScreen").style.display = "none";
+  document.getElementById("cardScreen").style.display = "block";
+  showCard();
+};
+
+function showCard() {
+  const card = currentDeck[cardIndex];
+  document.getElementById("progressText").textContent = "Card " + (cardIndex + 1) + " of " + currentDeck.length;
+  document.getElementById("topicText").textContent = card.topicName;
+  document.getElementById("questionText").textContent = card.question;
+  document.getElementById("answerText").textContent = card.answer;
+
+  // Hide the answer until Reveal is pressed
+  document.getElementById("answerText").style.display = "none";
+  document.getElementById("revealButton").style.display = "block";
+  document.getElementById("nextButton").style.display = "none";
+}
+
+document.getElementById("revealButton").onclick = function () {
+  document.getElementById("answerText").style.display = "block";
+  document.getElementById("revealButton").style.display = "none";
+  document.getElementById("nextButton").style.display = "block";
+};
+
+document.getElementById("nextButton").onclick = function () {
+  cardIndex = cardIndex + 1;
+  if (cardIndex < currentDeck.length) {
+    showCard();
+  } else {
+    document.getElementById("cardScreen").style.display = "none";
+    document.getElementById("doneScreen").style.display = "block";
+  }
+};
+
+document.getElementById("newDeckButton").onclick = function () {
+  document.getElementById("doneScreen").style.display = "none";
+  document.getElementById("setupScreen").style.display = "block";
+};
+
+// Put a list in random order.
+// Walks from the last spot to the first, swapping each spot with a random spot at or before it.
+function shuffle(list) {
+  for (let position = list.length - 1; position > 0; position--) {
+    const randomPosition = Math.floor(Math.random() * (position + 1));
+    const temporary = list[position];
+    list[position] = list[randomPosition];
+    list[randomPosition] = temporary;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+[
+  [
+    "In what order does a router choose between routes?",
+    "1. Longest prefix match\n2. Administrative distance (only between identical prefixes)\n3. Metric (only between routes with the same AD)\nA full tie: both are installed and traffic is load-balanced."
+  ],
+  [
+    "ip route 0.0.0.0 0.0.0.0 216.0.5.1 is configured, but the interface on 216.0.5.0/30 is shut down. Is the default route in the routing table?",
+    "No. The router can't resolve the next hop (there's no connected route to 216.0.5.0/30), so the static route stays in the config but isn't installed. Gateway of last resort: not set."
+  ],
+  [
+    "A ping from R1 to a remote server works, but a ping from a PC behind R1 fails. What's the likely cause?",
+    "The far side has no return route to the PC's LAN. R1's own ping uses its exit interface IP as the source, which the far router reaches through a connected route."
+  ],
+  [
+    "What are the default administrative distances for connected, static, EIGRP, OSPF, and RIP?",
+    "Connected 0\nStatic 1\nEIGRP 90\nOSPF 110\nRIP 120"
+  ]
+]

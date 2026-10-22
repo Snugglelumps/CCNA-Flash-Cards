@@ -1,0 +1,14 @@
+[
+  [
+    "What's the difference between 'administratively down' and 'down/down'?",
+    "Administratively down: someone configured shutdown.\nDown/down: not shut, but no working link (no cable, far end down, bad cable, speed mismatch)."
+  ],
+  [
+    "Input errors are climbing, but CRC is 0. What does that tell you?",
+    "Input errors is a total. With CRC at 0, the errors are coming from its other parts: giants, runts, overruns, and so on. Check those counters."
+  ],
+  [
+    "What does the bandwidth command on an interface actually change?",
+    "Only the number used in calculations like OSPF cost. The link's real speed doesn't change."
+  ]
+]
